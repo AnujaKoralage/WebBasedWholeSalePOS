@@ -18,22 +18,23 @@ $(document).ready(function () {
 
                 $('tbody tr td img').off('click');
                 $('tbody tr td img').click(function () {
+                    var t = $(this);
                     var id = $(this).parents('tr').find('td:first-child').html();
                     console.log(id);
-                    $(this).parents('tr').remove();
                     $.ajax({
                         method:"DELETE",
                         url:"http://localhost:8080/customer",
                         async:true,
-                        dataType: 'json',
                         contentType: 'application/json',
                         data:JSON.stringify({
                             id:id
                         })
                     }).done(function (data) {
                         alert("Customer Deleted Successfully");
+                        t.parents('tr').remove();
                     }).fail(function (error) {
                         console.log(error);
+                        alert("cannot delete customer");
                     });
                 });
 
@@ -83,6 +84,7 @@ $(document).ready(function () {
                                 alert("Customer Updated Successfully");
                             }).fail(function (error) {
                                 console.log(error);
+                                alert("cannot update customer");
                             });
 
                             back.find('td:nth-child(2)').replaceWith('<td>'+name+'</td>');
@@ -92,7 +94,7 @@ $(document).ready(function () {
                             $('#addCustomer').trigger('change');
 
                             var id = $('tbody tr:last-child td:first-child').text();
-                            var currentId = 'C00'+(++id);
+                            var currentId = 'C00'+(1+parseInt(id));
                             console.log(currentId);
                             $('#exampleInputID').val('');
                             $('#exampleInputID').val(currentId);
@@ -105,8 +107,11 @@ $(document).ready(function () {
 
 
             }
+            $('#table').DataTable({
+                "searching":false
+            });
             var id = $('tbody tr:last-child td:first-child').text();
-            var currentId = 'C00'+(++id);
+            var currentId = 'C00'+(1+parseInt(id));
             $('#exampleInputID').val(currentId);
         })
         .fail(function (jqXHR,textStatus,errorThrown) {
@@ -127,7 +132,7 @@ $('#exampleInputAddress').change(function () {
 
 $('#addCustomer').click(function () {
     var valid = true;
-    
+
     if ($.trim($('#exampleInputName').val()).length ===0){
         $('#exampleInputName').css('box-shadow','1px 2px 5px  #b80009');
         valid = false;
@@ -154,7 +159,7 @@ $('#addCustomer').click(function () {
         }).done(function (data) {
             alert("Customer Saved Successfully");
 
-            $('tbody').append('<tr><td>'+id+'</td><td>'+name+'</td><td>'+address+'</td><td><img src="https://img.icons8.com/material/24/000000/delete.png"></td></tr>');
+            $('tbody').append('<tr><td>'+id.substring(1)+'</td><td>'+name+'</td><td>'+address+'</td><td><img src="https://img.icons8.com/material/24/000000/delete.png"></td></tr>');
 
             var id1 = $('tbody tr:last-child td:first-child').text();
             var currentId = 'C00'+(parseInt(id1.substring(1))+1);
@@ -166,21 +171,22 @@ $('#addCustomer').click(function () {
             $('tbody tr td img').off('click');
             $('tbody tr td img').click(function () {
                 var id = $(this).parents('tr').find('td:first-child').html();
-                console.log(id);
-                $(this).parents('tr').remove();
+                console.log(id+"delete");
+
                 $.ajax({
                     method:"DELETE",
                     url:"http://localhost:8080/customer",
                     async:true,
-                    dataType: 'json',
                     contentType: 'application/json',
                     data:JSON.stringify({
                         id:id
                     })
                 }).done(function (data) {
                     alert("Customer Deleted Successfully");
+                    $(this).parents('tr').remove();
                 }).fail(function (error) {
                     console.log(error);
+                    alert("cannot delete customer");
                 });
             });
 
@@ -252,6 +258,7 @@ $('#addCustomer').click(function () {
 
         }).fail(function (error) {
             console.log(error);
+            alert("cannot insert customer");
         });
 
     }

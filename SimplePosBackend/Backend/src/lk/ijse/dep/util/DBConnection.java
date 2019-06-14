@@ -15,7 +15,7 @@ public class DBConnection {
 
     private DBConnection(){
         try {
-            File file = new File("C:\\Users\\User\\Desktop\\SimplePosBackend\\Backend\\resourses\\DBConnection.propertie");
+            File file = new File("E:\\DEP\\Completed Projects\\JavaServletFullWeb\\SimplePosBackend\\Backend\\resourses\\DBConnection.propertie");
             FileInputStream fileInputStream = new FileInputStream(file);
             Properties dbPro = new Properties();
             dbPro.load(fileInputStream);

@@ -1,6 +1,8 @@
 package lk.ijse.dep;
 
 import lk.ijse.dep.util.DBConnection;
+import lk.ijse.dep.util.MyContextListner;
+import org.apache.commons.dbcp2.BasicDataSource;
 
 import javax.json.*;
 import javax.servlet.ServletException;
@@ -19,10 +21,17 @@ import java.sql.SQLException;
 @WebServlet(urlPatterns = "/customer/*")
 public class CustomerServlet extends HttpServlet {
 
-    private Connection connection = DBConnection.getInstnce().getConnection();
+    private Connection connection = null;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        BasicDataSource bds = (BasicDataSource) getServletContext().getAttribute("pool");
+        try {
+            connection = bds.getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         String pathInfo = req.getPathInfo();
         resp.setContentType("application/json");
@@ -30,7 +39,7 @@ public class CustomerServlet extends HttpServlet {
 
         if (pathInfo == null){
             try {
-                ResultSet resultSet = connection.prepareStatement("select * from customer").executeQuery();
+                ResultSet resultSet = this.connection.prepareStatement("select * from customer").executeQuery();
                 JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
                 while (resultSet.next()){
                     JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
@@ -42,11 +51,17 @@ public class CustomerServlet extends HttpServlet {
             } catch (SQLException e) {
                 e.printStackTrace();
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }finally {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
         else {
             try {
-                ResultSet resultSet = connection.prepareStatement("select *from customer where id=" +pathInfo.substring(1,2)).executeQuery();
+                ResultSet resultSet = this.connection.prepareStatement("select *from customer where id=" +pathInfo.substring(1,2)).executeQuery();
 
                     JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
                     if (resultSet.next()){
@@ -64,6 +79,12 @@ public class CustomerServlet extends HttpServlet {
 
             } catch (SQLException e) {
                 e.printStackTrace();
+            }finally {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -71,6 +92,13 @@ public class CustomerServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        BasicDataSource bds = (BasicDataSource) getServletContext().getAttribute("pool");
+        try {
+            connection = bds.getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         ServletInputStream inputStream = req.getInputStream();
         JsonReader reader = Json.createReader(inputStream);
@@ -93,6 +121,12 @@ public class CustomerServlet extends HttpServlet {
             } catch (SQLException e) {
                 e.printStackTrace();
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }finally {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
 
         }
@@ -103,6 +137,14 @@ public class CustomerServlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        BasicDataSource bds = (BasicDataSource) getServletContext().getAttribute("pool");
+        try {
+            connection = bds.getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         ServletInputStream inputStream = req.getInputStream();
         JsonReader reader = Json.createReader(inputStream);
         Object read = reader.readObject();
@@ -116,16 +158,31 @@ public class CustomerServlet extends HttpServlet {
                 } else {
                     resp.setStatus(HttpServletResponse.SC_OK);
                 }
-            } else
+            } else {
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        BasicDataSource bds = (BasicDataSource) getServletContext().getAttribute("pool");
+        try {
+            connection = bds.getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         String pathInfo = req.getPathInfo();
         String id = pathInfo.substring(1);
         if (pathInfo==null){
@@ -153,6 +210,12 @@ public class CustomerServlet extends HttpServlet {
                 } catch (SQLException e) {
                     e.printStackTrace();
                     resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }finally {
+                    try {
+                        connection.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             else {
